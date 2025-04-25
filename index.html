@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
+    <title>OneShot - A Game That Knows You</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #2A0832;
+            color: #e0e6f0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 3fr 1fr;
+            grid-template-rows: auto 1fr auto;
+            grid-template-areas: 
+                "header header header"
+                "left main right"
+                "footer footer footer";
+            min-height: 100vh;
+            gap: 20px;
+            padding: 0 20px;
+        }
+        
+        /* Header Styles */
+        header {
+            grid-area: header;
+            background: url('header.png') center/cover no-repeat;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid #78369E;
+            box-shadow: 0 0 15px rgba(120, 54, 158, 0.5);
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .title-container {
+            position: relative;
+            z-index: 2;
+            background-color: rgba(42, 8, 50, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 800px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 8px rgba(255, 195, 97, 0.8);
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+        
+        h1 .highlight {
+            color: #FFC361;
+            -webkit-text-stroke: 1px #78369E;
+            text-stroke: 1px #78369E;
+        }
+        
+        h1 .regular {
+            color: #D9776E;
+            -webkit-text-stroke: 1px #78369E;
+            text-stroke: 1px #78369E;
+        }
+        
+        header p {
+            font-style: italic;
+            color: #D9776E;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Left Sidebar Styles */
+        .left-sidebar {
+            grid-area: left;
+            background: linear-gradient(to bottom, #2A0832, #6F1A40);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .author-section {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #78369E;
+        }
+        
+        .author-section h3 {
+            color: #D9776E;
+            margin-bottom: 10px;
+        }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .game-logo {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(255, 195, 97, 0.3);
+        }
+        
+        .game-info h3 {
+            color: #D9776E;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .game-info ul {
+            list-style-type: none;
+        }
+        
+        .game-info li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .game-info .info-icon {
+            margin-right: 10px;
+            color: #FFC361;
+            font-size: 2em; /* Make icon twice the size of text */
+            line-height: 1;
+            flex-shrink: 0; /* Prevent icon from shrinking */
+        }
+        
+        .game-info .info-content {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        
+        .game-info strong {
+            margin-right: 5px; /* Space after the label */
+        }
+        
+        .platforms {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        /* Main Content Styles */
+        main {
+            grid-area: main;
+            padding: 20px;
+            background: linear-gradient(135deg, #2A0832, #6F1A40);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .content-section {
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-in;
+        }
+        
+        .content-section h2 {
+            color: #D9776E;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #78369E;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-icon {
+            margin-right: 10px;
+            color: #FFC361;
+            font-size: 1.25em; /* Make icon twice the size of heading text */
+            line-height: 1;
+        }
+        
+        .content-section p {
+            margin-bottom: 15px;
+            text-indent: 2em;
+        }
+        
+        .no-indent {
+            text-indent: 0;
+        }
+        
+        .feature-list {
+            list-style-type: none;
+            margin: 20px 0;
+        }
+        
+        .feature-list li {
+            margin-bottom: 15px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .feature-list li::before {
+            content: "💡";
+            position: absolute;
+            left: 0;
+            color: #FFC361;
+        }
+        
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .full-width-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .full-width-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 6px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer; /* Add cursor pointer for clickable images */
+        }
+        
+        .game-image {
+            width: 100%;
+            object-fit: contain;
+            border-radius: 6px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer; /* Add cursor pointer for clickable images */
+        }
+        
+        .game-image:hover,
+        .full-width-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(120, 54, 158, 0.7);
+        }
+        
+        .fun-facts {
+            background: linear-gradient(to right, #6F1A40, #78369E);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #FFC361;
+        }
+        
+        .fun-facts h3 {
+            color: #FFC361;
+            margin-bottom: 15px;
+        }
+        
+        .fun-facts ul {
+            list-style-type: none;
+        }
+        
+        .fun-facts li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .fun-facts li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #FFC361;
+        }
+        
+        .conclusion {
+            font-style: italic;
+            padding: 20px;
+            background: linear-gradient(to right, rgba(120, 54, 158, 0.1), rgba(120, 54, 158, 0.2));
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .animated-gif {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: 8px;
+            filter: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .animated-gif:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(120, 54, 158, 0.7);
+        }
+
+        .hover-gif {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.5s ease;
+            filter: grayscale(100%);
+        }
+
+        .hover-gif:hover {
+            filter: none;
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(120, 54, 158, 0.7);
+        }
+        
+        /* Right Sidebar Styles */
+        .right-sidebar {
+            grid-area: right;
+            background: linear-gradient(to bottom, #2A0832, #6F1A40);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .soundtrack-section h3 {
+            color: #D9776E;
+            margin-bottom: 15px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .section-icon-right {
+            margin-right: 10px;
+            color: #FFC361;
+            font-size: 1.5em;
+            line-height: 1;
+        }
+        
+        .spotify-player {
+            width: 100%;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .spotify-player iframe {
+            width: 100%;
+            border-radius: 12px;
+        }
+        
+        .steam-widget-section {
+            margin-top: 30px;
+        }
+        
+        .steam-widget-section h3 {
+            color: #D9776E;
+            margin-bottom: 15px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .steam-widget {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .steam-widget iframe {
+            width: 100%;
+            max-width: 646px;
+        }
+        
+        /* Footer Styles */
+        footer {
+            grid-area: footer;
+            background: linear-gradient(to right, #2A0832, #6F1A40);
+            padding: 20px;
+            text-align: center;
+            border-top: 2px solid #78369E;
+            margin-top: 20px;
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            color: #D9776E;
+        }
+        
+        /* Animations */
+        @keyframes glow {
+            0% { text-shadow: 0 0 5px rgba(255, 195, 97, 0.5); }
+            100% { text-shadow: 0 0 20px rgba(255, 195, 97, 0.8), 0 0 30px rgba(255, 195, 97, 0.6); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Lightbox Styles */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .lightbox.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(255, 195, 97, 0.5);
+        }
+        
+        .lightbox.active .lightbox-content {
+            transform: scale(1);
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #FFC361;
+            font-size: 2rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .lightbox-close:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 1fr 2fr;
+                grid-template-areas: 
+                    "header header"
+                    "left main"
+                    "right main"
+                    "footer footer";
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "header"
+                    "main"
+                    "left"
+                    "right"
+                    "footer";
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <!-- Background image: https://static.wikia.nocookie.net/oneshot/images/3/3d/Cg_red.png/revision/latest?cb=20190522041631&path-prefix=ru -->
+            <div class="title-container">
+                <h1><span class="highlight">OneShot</span><span class="regular">: A Game That Knows You</span></h1>
+                <p>"For Niko, a dream. Like thousands of dreams. For you, a story. Like thousands of stories."</p>
+            </div>
+        </header>
+        
+        <!-- Left Sidebar -->
+        <div class="left-sidebar">
+            <div class="author-section">
+                <h3>Blog Author</h3>
+                <p>Khomenko Serhii</p>
+            </div>
+            
+            <div class="logo-container">
+                <!-- Game logo: https://img.itch.zone/aW1nLzMwNzQ5NTAucG5n/315x250%23c/2ECv2v.png -->
+                <img src="https://img.itch.zone/aW1nLzMwNzQ5NTAucG5n/315x250%23c/2ECv2v.png" alt="OneShot Game Logo" class="game-logo">
+            </div>
+
+            <div class="game-info">
+                <h3>Game Info</h3>
+                <ul>
+                    <li>
+                        <span class="info-icon">🎮</span>
+                        <div class="info-content">
+                            <strong>Title:</strong>  OneShot
+                        </div>
+                    </li>
+                    <li>
+                        <span class="info-icon">👨‍💻</span>
+                        <div class="info-content">
+                            <strong>Developer:</strong>  Future Cat LLC
+                        </div>
+                    </li>
+                    <li>
+                        <span class="info-icon">📢</span>
+                        <div class="info-content">
+                            <strong>Publisher:</strong>  Degica, KOMODO
+                        </div>
+                    </li>
+                    <li>
+                        <span class="info-icon">📅</span>
+                        <div class="info-content">
+                            <strong>Release Date:</strong>  December 8, 2016
+                        </div>
+                    </li>
+                    <li>
+                        <span class="info-icon">🏷️</span>
+                        <div class="info-content">
+                            <strong>Genre:</strong>  Adventure, Puzzle, Psychological Indie
+                        </div>
+                    </li>
+                    <li>
+                        <span class="info-icon">💻</span>
+                        <div class="info-content">
+                            <strong>Platform:</strong>  
+                            <div class="platforms">Windows, macOS, Linux</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <main>
+            <div class="content-section">
+                <h2><span class="section-icon">ℹ️</span> What is OneShot?</h2>
+                <p>OneShot is a 2D top-down puzzle-adventure game about a child named Niko, who wakes up in a desolate world with one mission — restore its dying sun. But there's a twist.</p>
+                <p class="no-indent"><strong>You're not Niko.</strong></p>
+                <p class="no-indent"><strong>You're you.</strong></p>
+                <p class="no-indent"><strong>And the game knows that.</strong></p>
+                <p>Niko's wide glowing eyes, small stature, and cat-like ears give them an otherworldly charm — a child who looks like a cat, but with a softness that feels deeply human.</p>
+                <p>What starts as a quiet indie adventure quickly evolves into a metafictional experience — one that reaches beyond the game window and into your actual desktop. Files change. Windows close by themselves. The game addresses you by name. It breaks the fourth wall, not for shock, but for emotion.</p>
+                
+                <div class="image-gallery">
+                    <!-- Images: https://static.wikia.nocookie.net/oneshot/images/e/ec/Niko_faces.gif/revision/latest/scale-to-width/360?cb=20191007153634&path-prefix=ru -->
+                    <img src="https://media.tenor.com/iqyyZDm6SDIAAAAM/niko-oneshot.gif" alt="Niko facial expressions" class="game-image">
+                    
+                    <!-- https://static.wikia.nocookie.net/oneshot/images/6/68/Niko_bulb_x3.gif/revision/latest/scale-to-width/360?cb=20200202122625&path-prefix=ru -->
+                    <img src="nikowalks.gif" alt="Niko with lightbulb" class="game-image">
+                    
+                    <!-- https://static.wikia.nocookie.net/oneshot/images/5/5b/Cg_map.png/revision/latest?cb=20161214211247 -->
+                    <img src="world.png" alt="World map" class="game-image">
+                    
+                    <!-- https://static.wikia.nocookie.net/oneshot/images/6/64/%D0%9D%D0%B8%D0%BA%D0%BE_%D0%B2_%D0%B7%D0%B0%D0%B1%D1%80%D0%BE%D1%88%D0%B5%D0%BD%D0%BD%D0%BE%D0%BC_%D0%B4%D0%BE%D0%BC%D0%B5.png/revision/latest?cb=20191206193412&path-prefix=ru -->
+                    <img src="house.png" alt="Niko in abandoned house" class="game-image">
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h2><span class="section-icon">⭐</span> Core Features That Make It Special</h2>
+                <ul class="feature-list">
+                    <li><strong>Meta gameplay:</strong> OneShot alters and reads real files on your PC, sometimes asking you to find clues in your system folders.</li>
+                    <li><strong>You are part of the story:</strong> The game consistently separates the player (you) and the protagonist (Niko), building a dual relationship dynamic rarely explored in games.</li>
+                    <li><strong>Permanent consequences:</strong> The title isn't just a name — your first playthrough is your only one… unless you find a certain hidden path.</li>
+                    <li><strong>Emotive soundtrack:</strong> Soft piano themes, ambient layers, and lo-fi synths create an atmosphere of both warmth and decay.</li>
+                    <li><strong>Distinct pixel-art:</strong> The visuals feel like fragments of a dream — washed out, minimalistic, and incredibly expressive.</li>
+                </ul>
+                
+                <div class="image-gallery">
+                    <!-- https://file.garden/@mspfa-archive/discord/attachments/800880916931149844/876250987080331364/unknown.png -->
+                    <img src="https://upload.wikimedia.org/wikipedia/en/9/9c/OneShot_developing_film_puzzle.gif?20230911222928" alt="Meta gameplay example" class="game-image">
+                    
+                    <!-- https://cdn.staticneo.com/ew/thumb/3/3b/OneShot_TheTower_6.PNG/730px-OneShot_TheTower_6.PNG -->
+                    <img src="https://cdn.staticneo.com/ew/thumb/3/3b/OneShot_TheTower_6.PNG/730px-OneShot_TheTower_6.PNG" alt="Tower scene" class="game-image">
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h2><span class="section-icon">🎯</span> What You'll Actually Be Doing</h2>
+                <p>You will explore a surreal world filled with the remnants of a civilization in decline. You'll interact with strange machines, lonely characters, and fragile environments that quietly tell stories.</p>
+                <p>In this journey, you will guide Niko — a child who wakes up in a world not their own — on a mission to restore its fading light, symbolized by a mysterious, glowing lightbulb. This lightbulb isn't just an object; it represents hope, and Niko treats it with great care.</p>
+                <p>You'll solve logical puzzles, search for clues in unexpected places (even outside the game), and gently uncover the world's quiet mysteries. The gameplay is never about action — it's about connection, consequence, and care.</p>
+
+                
+                <div class="image-gallery">
+                    <!-- https://static.wikia.nocookie.net/oneshot/images/b/ba/Niko_by_the_trading_NPC%27s_area.jpg/revision/latest?cb=20170102094024 -->
+                    <img src="nikotrading.jpg" alt="Niko trading with NPC" class="game-image">
+                    
+                    <!-- https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/420530/ss_7a448b3054a24947e4621a7df8cb819db74d31e1.600x338.jpg?t=1729475523 -->
+                    <img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/420530/ss_7a448b3054a24947e4621a7df8cb819db74d31e1.600x338.jpg?t=1729475523" alt="Game puzzle" class="game-image">
+                    
+                    <!-- https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/420530/ss_5d03428de28dd03845a9adb5566ba29431eba0f5.600x338.jpg?t=1729475523 -->
+                    <img src="https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/420530/ss_5d03428de28dd03845a9adb5566ba29431eba0f5.600x338.jpg?t=1729475523" alt="Game environment" class="game-image">
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h2><span class="section-icon">🎨</span> Aesthetic & Atmosphere</h2>
+                <p>The feeling OneShot leaves is hard to put into words. It's quiet. Lonely. Hopeful. You feel the weight of the world — but never from pressure. It's from caring.</p>
+                <p>The faded colors, the flickering lights, the empty rooms filled with static. It all whispers a story of something once full of life… now fading.</p>
+                
+                <div class="full-width-gallery">
+                    <!-- https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/420530/ss_f96300cc310f7f0aa6f6c6f0c870cdd4c6418bf7.1920x1080.jpg?t=1729475523 -->
+                    <img src="https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/420530/ss_f96300cc310f7f0aa6f6c6f0c870cdd4c6418bf7.1920x1080.jpg?t=1729475523" alt="Game atmosphere - city view" class="full-width-image">
+                    
+                    <!-- https://www.spriters-resource.com/resources/sheets/91/94035.png?updated=1500450282 -->
+                    <img src="https://www.spriters-resource.com/resources/sheets/91/94035.png?updated=1500450282" alt="Character sprite sheet" class="full-width-image">
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h2><span class="section-icon">🧩</span> Interesting Facts</h2>
+                <div class="fun-facts">
+                    <h3>Did You Know?</h3>
+                    <ul>
+                        <li>Originally released as a free RPG Maker XP project in 2014</li>
+                        <li>The game was designed so that closing the window is part of gameplay</li>
+                        <li>In one puzzle, you must minimize the game to find the solution</li>
+                        <li>Niko remembers your name, even across separate play sessions</li>
+                        <li>There's an upgraded version of the game called OneShot: World Machine Edition</li>
+                        <li>The game edits its own files in your Documents folder</li>
+                        <li><img src="nikosit.gif" alt="Niko sitting" style="height: 40px; vertical-align: middle; margin-right: 10px;"> Niko is confirmed to be neither cat nor human — just Niko</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h2><span class="section-icon">🤔</span> Should You Play It?</h2>
+                <p>If you're the kind of person who appreciates quiet, personal stories and games that aren't afraid to break rules, OneShot will be something you remember. It's short (about 4-6 hours), but its emotional impact is surprisingly deep. Perfect for fans of Undertale, Omori, To the Moon or any game that dares to speak to you, not just your avatar.</p>
+                
+                <div class="conclusion">
+                    <p>This is not just a game. It's a whisper from another world.</p>
+                    <p>And it only needs <span style="font-weight: bold;">one shot</span> to reach you.</p>
+                </div>
+                
+                <!-- https://tcrf.net/images/7/76/OneShot%282014%29-PrereleaseTumblrArt15.gif -->
+                <img
+                    src="nikoframe1.jpg"
+                    data-static="nikoframe1.jpg"
+                    data-gif="nikogifonhover.gif"
+                    alt="Niko animated"
+                    class="hover-gif"
+                />
+            </div>
+        </main>
+        
+        <!-- Right Sidebar -->
+        <div class="right-sidebar">
+            <div class="soundtrack-section">
+                <h3><span class="section-icon-right">🎵</span> Soundtrack</h3>
+                <div class="spotify-player">
+                    <iframe src="https://open.spotify.com/embed/album/40NAeX3e5lntlvuANl6j43?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                </div>
+            </div>
+            
+            <div class="steam-widget-section">
+                <h3><span class="section-icon-right">🛒</span> Get The Game</h3>
+                <div class="steam-widget">
+                    <iframe src="https://store.steampowered.com/widget/420530/" frameborder="0" width="100%" height="190"></iframe>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer>
+            <div class="copyright">
+                © PD-21 Khomenko Serhii 2025
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Lightbox -->
+    <div class="lightbox">
+        <img src="" alt="Enlarged image" class="lightbox-content">
+        <span class="lightbox-close">&times;</span>
+    </div>
+
+    <script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Select all gallery images that should open in the lightbox
+    const galleryImages = document.querySelectorAll('.game-image, .full-width-image');
+    const lightbox = document.querySelector('.lightbox');
+    const lightboxContent = document.querySelector('.lightbox-content');
+    const lightboxClose = document.querySelector('.lightbox-close');
+    
+    // Function to handle scrollbar compensation
+    function handleScrollbarCompensation(disableScroll) {
+        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+        
+        if (disableScroll) {
+            // Save the current scroll position
+            const scrollY = window.scrollY;
+            
+            // Add padding to compensate for scrollbar disappearance
+            document.body.style.paddingRight = scrollbarWidth + 'px';
+            
+            // Disable scrolling but maintain position
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = '100%';
+        } else {
+            // Get the scroll position from the body's top property
+            const scrollY = document.body.style.top;
+            
+            // Reset styles
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            document.body.style.paddingRight = '';
+            
+            // Restore scroll position
+            window.scrollTo(0, parseInt(scrollY || '0') * -1);
+        }
+    }
+    
+    // Add click event to each gallery image
+    galleryImages.forEach(image => {
+        image.addEventListener('click', function() {
+            // Set the lightbox image source to the clicked image source
+            lightboxContent.src = this.src;
+            lightboxContent.alt = this.alt;
+            
+            // Disable scrolling with compensation for scrollbar
+            handleScrollbarCompensation(true);
+            
+            // Show the lightbox with a smooth animation
+            lightbox.classList.add('active');
+        });
+    });
+    
+    // Close lightbox when clicking the close button
+    lightboxClose.addEventListener('click', function() {
+        lightbox.classList.remove('active');
+        
+        // Re-enable scrolling
+        handleScrollbarCompensation(false);
+    });
+    
+    // Close lightbox when clicking outside the image
+    lightbox.addEventListener('click', function(e) {
+        // Only close if clicking directly on the lightbox background (not the image)
+        if (e.target === lightbox) {
+            lightbox.classList.remove('active');
+            
+            // Re-enable scrolling
+            handleScrollbarCompensation(false);
+        }
+    });
+    
+    // Add keyboard support (Escape key to close)
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+            lightbox.classList.remove('active');
+            
+            // Re-enable scrolling
+            handleScrollbarCompensation(false);
+        }
+    });
+});
+
+// Continue to support the hover GIFs functionality
+document.querySelectorAll('.hover-gif').forEach(img => {
+    const staticSrc = img.dataset.static;
+    const gifSrc = img.dataset.gif;
+    img.addEventListener('mouseenter', () => {
+        img.src = gifSrc;
+    });
+    img.addEventListener('mouseleave', () => {
+        img.src = staticSrc;
+    });
+});
+    </script>
+
+    <script>
+        // Simple script to animate content sections on scroll
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'fadeIn 1s ease-in forwards';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.content-section').forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+
+<script>
+    document.querySelectorAll('.hover-gif').forEach(img => {
+      const staticSrc = img.dataset.static;
+      const gifSrc    = img.dataset.gif;
+      img.addEventListener('mouseenter', () => {
+        img.src = gifSrc;
+      });
+      img.addEventListener('mouseleave', () => {
+        img.src = staticSrc;
+      });
+    });
+  </script>
+
+<script>
+    // Set the page zoom to 80% when the document loads
+document.addEventListener('DOMContentLoaded', function() {
+    // This approach uses the built-in browser zoom functionality
+    // Similar to pressing Ctrl and minus (-) on keyboard
+    
+    // Modern browsers support
+    if (window.devicePixelRatio) {
+        document.body.style.zoom = "80%";
+    }
+    
+    // For browsers that don't support zoom property directly
+    // Create a meta viewport tag to control the scaling
+    else {
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+            viewport.setAttribute('content', 'width=device-width, initial-scale=0.8');
+        } else {
+            const meta = document.createElement('meta');
+            meta.name = 'viewport';
+            meta.content = 'width=device-width, initial-scale=0.8';
+            document.getElementsByTagName('head')[0].appendChild(meta);
+        }
+    }
+});
+</script>
+
+</body>
+</html>
+
